@@ -357,13 +357,16 @@ func generate_water_surface():
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var half = (N - 1) * Constants.T / 2.0
 
+	# small upward offset to reduce z-fighting with the ground (increase if needed)
+	var WATER_EPS := 0.05 * Constants.T
 	# define water color once (in scope for material assignment)
 	var water_col := Color(0.0, 0.45, 0.8, 0.6)
 
-	for x in range(N):
-		for y in range(N):
-			var x2 = (x + 1) % N
-			var y2 = (y + 1) % N
+	# iterate only to N-1 to avoid wrapping/connecting last to first (which can create stretched planes)
+	for x in range(N - 1):
+		for y in range(N - 1):
+			var x2 = x + 1
+			var y2 = y + 1
 
 			# world-space bases
 			var base_x = half - x * Constants.T
@@ -371,10 +374,11 @@ func generate_water_surface():
 			var base_z = half - y * Constants.T
 			var base_z2 = half - y2 * Constants.T
 
-			var p00 = Vector3(base_x,  get_water_level(base_x, base_z), base_z)
-			var p01 = Vector3(base_x,  get_water_level(base_x, base_z2), base_z2)
-			var p10 = Vector3(base_x2, get_water_level(base_x2, base_z), base_z)
-			var p11 = Vector3(base_x2, get_water_level(base_x2, base_z2), base_z2)
+			# sample water level and lift slightly to avoid z-fighting
+			var p00 = Vector3(base_x,  get_water_level(base_x, base_z) + WATER_EPS, base_z)
+			var p01 = Vector3(base_x,  get_water_level(base_x, base_z2) + WATER_EPS, base_z2)
+			var p10 = Vector3(base_x2, get_water_level(base_x2, base_z) + WATER_EPS, base_z)
+			var p11 = Vector3(base_x2, get_water_level(base_x2, base_z2) + WATER_EPS, base_z2)
 
 			var wn1 = (p11 - p00).cross(p10 - p00).normalized()
 			if wn1.dot(Vector3.UP) < 0:

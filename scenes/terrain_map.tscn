@@ -4,5 +4,6 @@
 
 [node name="TerrainMap" type="Node3D"]
 script = ExtResource("1_frtjf")
+N = 60
 WATER_LEVEL = 400.0
-noise_frequency = 0.35
+noise_frequency = 0.25
