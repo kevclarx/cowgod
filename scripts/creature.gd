@@ -80,7 +80,8 @@ func create_flower_mesh():
 	var st = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
-	var scale = 0.15 + size
+	const MIN_FLOWER_SCALE = 0.15
+	var scale = MIN_FLOWER_SCALE + size
 	var height = 75.0 * scale
 	var width = 7.0 * scale
 	var petal_width = 30.0 * scale
@@ -305,11 +306,19 @@ func plant_physics():
 	
 	update_mesh()
 
+func get_target_position(t) -> Vector3:
+	if t.has_method("get_position"):
+		return t.get_position()
+	elif "coor" in t:
+		return t.coor
+	else:
+		return t.position
+
 func check_interactions():
 	if not target or target.is_queued_for_deletion():
 		return
 	
-	var distance = coor.distance_to(target.position if target.has_method("get_position") else target.coor if "coor" in target else target.position)
+	var distance = coor.distance_to(get_target_position(target))
 	
 	# Eating
 	if top_priority == 0 and not to_die and species >= 0 and "species" in target:

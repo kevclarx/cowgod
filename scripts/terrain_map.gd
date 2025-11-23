@@ -203,7 +203,10 @@ func update_mesh():
 	ground_mat.vertex_color_use_as_albedo = true
 	ground_mesh_instance.material_override = ground_mat
 	
-	# Generate water mesh
+	# Generate initial water mesh
+	generate_water_surface()
+
+func generate_water_surface():
 	var wt = SurfaceTool.new()
 	wt.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
@@ -243,12 +246,13 @@ func update_mesh():
 	wt.generate_normals()
 	water_mesh_instance.mesh = wt.commit()
 	
-	# Create material for water
-	var water_mat = StandardMaterial3D.new()
-	water_mat.vertex_color_use_as_albedo = true
-	water_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	water_mat.albedo_color = Color(Constants.WATER_COLOR, 0.7)
-	water_mesh_instance.material_override = water_mat
+	# Create material for water (only once)
+	if not water_mesh_instance.material_override:
+		var water_mat = StandardMaterial3D.new()
+		water_mat.vertex_color_use_as_albedo = true
+		water_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		water_mat.albedo_color = Color(Constants.WATER_COLOR, 0.7)
+		water_mesh_instance.material_override = water_mat
 
 func _process(_delta):
 	ticks += 1
@@ -258,38 +262,4 @@ func _process(_delta):
 
 func update_water_mesh():
 	# Only update water mesh for wave animation
-	var wt = SurfaceTool.new()
-	wt.begin(Mesh.PRIMITIVE_TRIANGLES)
-	
-	for x in range(N):
-		for y in range(N):
-			var x2 = (x + 1) % N
-			var y2 = (y + 1) % N
-			
-			var w00 = get_water_level(x * Constants.T, y * Constants.T)
-			var w01 = get_water_level(x * Constants.T, y2 * Constants.T)
-			var w10 = get_water_level(x2 * Constants.T, y * Constants.T)
-			var w11 = get_water_level(x2 * Constants.T, y2 * Constants.T)
-			
-			var g00 = elev[x][y] * Constants.T
-			var g01 = elev[x][y2] * Constants.T
-			var g10 = elev[x2][y] * Constants.T
-			var g11 = elev[x2][y2] * Constants.T
-			
-			if g00 <= w00 or g01 <= w01 or g10 <= w10 or g11 <= w11:
-				var p00 = Vector3(x * Constants.T, w00, y * Constants.T)
-				var p01 = Vector3(x * Constants.T, w01, y2 * Constants.T)
-				var p10 = Vector3(x2 * Constants.T, w10, y * Constants.T)
-				var p11 = Vector3(x2 * Constants.T, w11, y2 * Constants.T)
-				
-				wt.set_color(Constants.WATER_COLOR)
-				wt.add_vertex(p00)
-				wt.add_vertex(p01)
-				wt.add_vertex(p11)
-				
-				wt.add_vertex(p00)
-				wt.add_vertex(p11)
-				wt.add_vertex(p10)
-	
-	wt.generate_normals()
-	water_mesh_instance.mesh = wt.commit()
+	generate_water_surface()

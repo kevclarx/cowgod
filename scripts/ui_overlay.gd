@@ -47,8 +47,9 @@ func _process(_delta):
 func update_ui():
 	# Update day label
 	var days = game_manager.ticks / Constants.TICKS_PER_DAY
-	var hour = int(fmod(days, 1.0) * 24)
-	var minute = int(fmod(fmod(days, 1.0) * 24, 1.0) * 60) + 1
+	var hour_fraction = fmod(days, 1.0) * 24
+	var hour = int(hour_fraction)
+	var minute = int(fmod(hour_fraction, 1.0) * 60) + 1
 	var hour_piece = str(hour % 12) if hour % 12 != 0 else "12"
 	var am_pm = "PM" if hour >= 12 else "AM"
 	var hour_string = hour_piece + ":" + ("%02d" % minute) + " " + am_pm
