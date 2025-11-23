@@ -1,4 +1,5 @@
-extends CanvasLayer
+extends Control
+class_name UIOverlay
 
 const Constants = preload("res://scripts/constants.gd")
 
@@ -63,8 +64,9 @@ func update_ui():
 			var species_name = ["Pink Flower", "Ice Flower", "Yellow Cow", "Teal Cow", "Red Predator", "Gray"][i]
 			label.text = species_name + ": " + str(populations[i])
 	
-	# Draw population graph
-	queue_redraw()
+	# Schedule redraw using queue_redraw via deferred call on this Control
+	# (calling queue_redraw() directly caused parser errors earlier)
+	self.call_deferred("queue_redraw")
 
 func _draw():
 	if not game_manager or game_manager.archive.size() < 2:

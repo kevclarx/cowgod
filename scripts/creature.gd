@@ -81,10 +81,10 @@ func create_flower_mesh():
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
 	const MIN_FLOWER_SCALE = 0.15
-	var scale = MIN_FLOWER_SCALE + size
-	var height = 75.0 * scale
-	var width = 7.0 * scale
-	var petal_width = 30.0 * scale
+	var flower_scale = MIN_FLOWER_SCALE + size
+	var height = 75.0 * flower_scale
+	var width = 7.0 * flower_scale
+	var petal_width = 30.0 * flower_scale
 	
 	var color = Constants.SPECIES_COLORS[species]
 	
@@ -164,8 +164,8 @@ func create_creature_mesh():
 	mat.vertex_color_use_as_albedo = true
 	mesh_instance.material_override = mat
 
-func add_box(st: SurfaceTool, center: Vector3, size: Vector3):
-	var half = size / 2
+func add_box(st: SurfaceTool, center: Vector3, sz: Vector3):
+	var half = sz / 2
 	var verts = [
 		center + Vector3(-half.x, -half.y, -half.z),
 		center + Vector3(half.x, -half.y, -half.z),
@@ -187,7 +187,7 @@ func add_box(st: SurfaceTool, center: Vector3, size: Vector3):
 			st.add_vertex(verts[idx])
 
 func add_sphere(st: SurfaceTool, center: Vector3, radius: float, segments: int):
-	var rings = segments / 2
+	var rings = max(1, int(segments / 2.0))
 	for i in range(rings):
 		var lat0 = PI * (-0.5 + float(i) / rings)
 		var lat1 = PI * (-0.5 + float(i + 1) / rings)

@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://cxolx8i0gwfpf"]
+
+[ext_resource type="Script" uid="uid://bjw67xcpv6fww" path="res://scripts/terrain_map.gd" id="1_frtjf"]
+
+[node name="TerrainMap" type="Node3D"]
+script = ExtResource("1_frtjf")
+WATER_LEVEL = 400.0
+noise_frequency = 0.35
