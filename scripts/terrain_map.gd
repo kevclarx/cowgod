@@ -254,11 +254,13 @@ func generate_mesh():
 
 func update_mesh():
 	# Generate ground mesh, rotated 180° around Y and centered at origin
-	var st = SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var half = (N - 1) * Constants.T / 2.0
 
-	# iterate only to N-1 to avoid wrapping/connecting last to first
+	# Build non-indexed arrays so vertices are never shared between triangles (guarantees flat facets)
+	var verts := PackedVector3Array()
+	var norms := PackedVector3Array()
+	var cols  := PackedColorArray()
+
 	for x in range(N - 1):
 		for y in range(N - 1):
 			var x2 = x + 1
@@ -288,30 +290,38 @@ func update_mesh():
 			var c10 = get_color_at(x2, y)
 			var c11 = get_color_at(x2, y2)
 
-			# Use CLOCKWISE winding (Godot editor expectation) -> triangles: (p0,p3,p2) and (p0,p2,p1)
-			# Triangle 1: p0, p3, p2
-			var n1 = (p3 - p0).cross(p2 - p0).normalized()
-			if n1.dot(Vector3.UP) < 0:
-				n1 = -n1
-			st.set_normal(n1)
-			st.set_color(c00); st.add_vertex(p0)
-			st.set_normal(n1)
-			st.set_color(c10); st.add_vertex(p3)
-			st.set_normal(n1)
-			st.set_color(c11); st.add_vertex(p2)
-			
-			# Triangle 2: p0, p2, p1
-			var n2 = (p2 - p0).cross(p1 - p0).normalized()
-			if n2.dot(Vector3.UP) < 0:
-				n2 = -n2
-			st.set_normal(n2)
-			st.set_color(c00); st.add_vertex(p0)
-			st.set_normal(n2)
-			st.set_color(c11); st.add_vertex(p2)
-			st.set_normal(n2)
-			st.set_color(c01); st.add_vertex(p1)
+			# Use a single uniform color for the entire tile so each triangle renders flat (no color interpolation between tiles)
+			var tile_col = get_color_at(x, y)
 
-	ground_mesh_instance.mesh = st.commit()
+			# Triangle A (p0, p3, p2) - duplicate vertices, compute per-triangle normal
+			var a = p0; var b = p3; var c = p2
+			var n = (b - a).cross(c - a).normalized()
+			# If normal points down, invert it — DO NOT change vertex positions or winding
+			if n.y < 0.0:
+				n = -n
+			verts.append(a); verts.append(b); verts.append(c)
+			norms.append(n); norms.append(n); norms.append(n)
+			cols.append(tile_col); cols.append(tile_col); cols.append(tile_col)
+
+			# Triangle B (p0, p2, p1)
+			a = p0; b = p2; c = p1
+			n = (b - a).cross(c - a).normalized()
+			if n.y < 0.0:
+				n = -n
+			verts.append(a); verts.append(b); verts.append(c)
+			norms.append(n); norms.append(n); norms.append(n)
+			cols.append(tile_col); cols.append(tile_col); cols.append(tile_col)
+
+	# Build ArrayMesh from non-indexed arrays (no shared vertices)
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = norms
+	arrays[Mesh.ARRAY_COLOR] = cols
+	
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	ground_mesh_instance.mesh = mesh
 
 	# Ensure vertex colors are used by the material and make material non-metallic / high roughness
 	var ground_mat = StandardMaterial3D.new()
