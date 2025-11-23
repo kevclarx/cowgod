@@ -4,6 +4,8 @@
 
 [node name="TerrainMap" type="Node3D"]
 script = ExtResource("1_frtjf")
-N = 60
-WATER_LEVEL = 400.0
+N = 44
+WATER_LEVEL = 340.0
+WAVE_SIZE = 5.0
+WAVE_PERIOD = 200.0
 noise_frequency = 0.25

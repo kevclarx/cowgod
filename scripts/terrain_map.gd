@@ -55,10 +55,11 @@ func _process(_delta: float) -> void:
 		if not _initialized:
 			_initialize_and_build()
 		# animate water in editor preview (optional)
-		ticks += 1
+		# ticks += 1
 		# keep water surface updated
-		#if water_mesh_instance:
-			#update_mesh()
+	if water_mesh_instance:
+		ticks += 1
+		create_water_mesh()
 
 # Setter helpers — reinitialize when inspector values change
 func set_N(v):
@@ -84,7 +85,8 @@ func set_noise_seed(v):
 func _initialize_and_build() -> void:
 	# (re)initialize arrays/noise and build the mesh
 	initialize_map()
-	generate_mesh()
+	create_ground_mesh()
+	create_water_mesh()
 	_initialized = true
 
 func initialize_map():
@@ -230,29 +232,15 @@ func get_color_at(x: int, y: int) -> Color:
 	
 	return colors[idx].lerp(colors[idx + 1], t)
 
-func generate_mesh():
-	# Create or find ground mesh instance (safe for editor)
+func create_ground_mesh():
+	# Ensure ground mesh instance exists
 	if not ground_mesh_instance:
-		print("initializing new ground mesh")
 		ground_mesh_instance = get_node_or_null("GroundMesh")
 		if ground_mesh_instance == null:
-			print("adding child groundmesh")
 			ground_mesh_instance = MeshInstance3D.new()
 			ground_mesh_instance.name = "GroundMesh"
 			add_child(ground_mesh_instance)
-	
-	# Create or find water mesh instance (ensure it's present before generating)
-	if not water_mesh_instance:
-		water_mesh_instance = get_node_or_null("WaterMesh")
-		if water_mesh_instance == null:
-			print("adding child watermesh")
-			water_mesh_instance = MeshInstance3D.new()
-			water_mesh_instance.name = "WaterMesh"
-			add_child(water_mesh_instance)
-	
-	update_mesh()
-
-func update_mesh():
+			
 	# Generate ground mesh, rotated 180° around Y and centered at origin
 	var half = (N - 1) * Constants.T / 2.0
 
@@ -283,12 +271,6 @@ func update_mesh():
 			var p1 = Vector3(base_x,  h01, base_z2)  # (x, y+1)
 			var p2 = Vector3(base_x2, h11, base_z2)  # (x+1, y+1)
 			var p3 = Vector3(base_x2, h10, base_z)   # (x+1, y)
-
-			# Colors for corners
-			var c00 = get_color_at(x, y)
-			var c01 = get_color_at(x, y2)
-			var c10 = get_color_at(x2, y)
-			var c11 = get_color_at(x2, y2)
 
 			# Use a single uniform color for the entire tile so each triangle renders flat (no color interpolation between tiles)
 			var tile_col = get_color_at(x, y)
@@ -351,10 +333,8 @@ func update_mesh():
 	ground_mat.cull_mode = BaseMaterial3D.CULL_BACK
 	ground_mesh_instance.material_override = ground_mat
 
-	# Generate water mesh
-	generate_water_surface()
 
-func generate_water_surface():
+func create_water_mesh():
 	# Ensure water mesh instance exists
 	if not water_mesh_instance:
 		water_mesh_instance = get_node_or_null("WaterMesh")
