@@ -1,6 +1,7 @@
 extends Node3D
 
 const Constants = preload("res://scripts/constants.gd")
+const CreatureAI = preload("res://scripts/creature_ai.gd")
 
 var species: int = 0
 var coor: Vector3 = Vector3.ZERO
@@ -18,6 +19,7 @@ var predator: Node3D = null
 var top_priority: int = -1
 var wander_action: int = -1
 var time_of_last_meal: int = -99999
+var recent_child: Node3D = null
 
 var mesh_instance: MeshInstance3D
 var terrain_map: Node3D
@@ -25,6 +27,8 @@ var game_manager: Node
 var creature_id: int = 0
 var creature_name: String = ""
 var generation: int = 0
+var ai: CreatureAI = null
+var children: Array = []
 
 const FRICTION = 0.85
 const ACCEL = 2.0
@@ -35,6 +39,7 @@ func _ready():
 	if Constants.get_species_type(species) >= 1:
 		tick_bucket = randi() % 20
 		creature_name = generate_name()
+		ai = CreatureAI.new(self, game_manager, terrain_map)
 
 func initialize(spec: int, pos: Vector3, burst: bool, primordial: bool, hunger: float, thirst: float, gen: int):
 	species = spec
@@ -231,6 +236,10 @@ func do_physics(delta: float):
 	if Constants.get_species_type(species) == 0:
 		plant_physics()
 	
+	# AI actions
+	if Constants.get_species_type(species) >= 1 and ai:
+		ai.do_actions()
+	
 	# Apply velocity
 	coor += velo * delta * 30.0  # Scale for fixed timestep equivalent
 	
@@ -266,6 +275,9 @@ func do_physics(delta: float):
 		else:
 			velo.y -= 1.0  # Gravity
 	
+	# Food chain interactions
+	check_interactions()
+	
 	position = coor
 	rotation.y = rotation_angle
 
@@ -293,5 +305,57 @@ func plant_physics():
 	
 	update_mesh()
 
+func check_interactions():
+	if not target or target.is_queued_for_deletion():
+		return
+	
+	var distance = coor.distance_to(target.position if target.has_method("get_position") else target.coor if "coor" in target else target.position)
+	
+	# Eating
+	if top_priority == 0 and not to_die and species >= 0 and "species" in target:
+		if target.species >= 0 and Constants.IS_FOOD[species][target.species]:
+			if ai and ai.is_edible(target) and distance < Constants.COLLISION_DISTANCE:
+				var gained_calories = 0.0
+				if Constants.get_species_type(target.species) == 0:
+					gained_calories = Constants.CALORIES_RATE[target.species] * target.size
+				else:
+					gained_calories = Constants.CALORIES_RATE[target.species] * target.priorities[0]
+				
+				priorities[0] = min(1.0, priorities[0] + gained_calories)
+				time_of_last_meal = game_manager.ticks
+				target.to_die = true
+	
+	# Drinking
+	if top_priority == 1 and terrain_map:
+		var water_level = terrain_map.get_water_level(coor.x, coor.z)
+		if coor.y < water_level:
+			priorities[1] = min(1.0, priorities[1] + Constants.WATER_CALORIES)
+	
+	# Mating
+	if top_priority == 2 and "species" in target and species >= 0:
+		if target.species >= 0 and species == target.species and distance < Constants.COLLISION_DISTANCE:
+			# Give birth
+			var hunger_for_offspring = (priorities[0] + target.priorities[0]) / 3.0
+			priorities[0] -= priorities[0] / 3.0
+			target.priorities[0] -= target.priorities[0] / 3.0
+			priorities[5] = 0.0
+			target.priorities[5] = 0.0
+			
+			var thirst_for_offspring = (priorities[1] + target.priorities[1]) / 2.0
+			
+			var child = game_manager.spawn_creature(species, coor, true, false, hunger_for_offspring, thirst_for_offspring, generation + 1)
+			priorities[2] = min(1.0, priorities[2] + 0.25)
+			
+			children.append(child.creature_name)
+			if "children" in target:
+				target.children.append(child.creature_name)
+			recent_child = child
+			if "recent_child" in target:
+				target.recent_child = child
+
 func _process(delta):
 	do_physics(delta)
+	
+	# Update AI
+	if Constants.get_species_type(species) >= 1 and ai:
+		ai.do_priorities()

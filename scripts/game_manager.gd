@@ -3,6 +3,7 @@ extends Node
 const Constants = preload("res://scripts/constants.gd")
 const Creature = preload("res://scripts/creature.gd")
 const TerrainMap = preload("res://scripts/terrain_map.gd")
+const UIOverlay = preload("res://scripts/ui_overlay.gd")
 
 var creatures: Array = []
 var terrain_map: Node3D
@@ -10,6 +11,9 @@ var ticks: int = 0
 var player_camera: Camera3D
 var archive: Array = []
 var max_id: int = 0
+var ui_overlay: CanvasLayer
+var camera_target: Node3D = null
+var camera_follow_mode: bool = false
 
 const ARCHIVE_EVERY = 30
 const ARCHIVE_SIZE = 200
@@ -18,6 +22,7 @@ func _ready():
 	randomize()
 	setup_world()
 	spawn_initial_creatures()
+	setup_ui()
 
 func setup_world():
 	# Create terrain
@@ -68,6 +73,7 @@ func spawn_creature(species: int, pos: Vector3, burst: bool, primordial: bool, h
 	add_child(creature)
 	creature.initialize(species, pos, burst, primordial, hunger, thirst, gen)
 	creatures.append(creature)
+	return creature
 
 func _process(_delta):
 	ticks += 1
@@ -107,27 +113,60 @@ func garbage_removal():
 			creatures[i].queue_free()
 			creatures.remove_at(i)
 
+func setup_ui():
+	ui_overlay = UIOverlay.new()
+	ui_overlay.game_manager = self
+	add_child(ui_overlay)
+
 func update_camera():
-	# Simple camera follow - find first creature
-	if creatures.size() > 0:
-		var target = creatures[0]
-		var target_pos = target.position + Vector3(0, 200, 200)
-		player_camera.position = player_camera.position.lerp(target_pos, 0.05)
-		player_camera.look_at(target.position)
+	if camera_follow_mode and camera_target and not camera_target.is_queued_for_deletion():
+		# Follow target creature
+		var offset = Vector3(0, 150, 150)
+		var target_pos = camera_target.position + offset
+		player_camera.position = player_camera.position.lerp(target_pos, 0.1)
+		player_camera.look_at(camera_target.position)
+	else:
+		# Free camera - find nearest animal
+		var nearest = find_nearest_animal()
+		if nearest:
+			camera_target = nearest
+			var offset = Vector3(0, 200, 200)
+			var target_pos = camera_target.position + offset
+			player_camera.position = player_camera.position.lerp(target_pos, 0.02)
+			player_camera.look_at(camera_target.position)
+
+func find_nearest_animal() -> Node3D:
+	var nearest = null
+	var nearest_dist = 999999.0
+	for creature in creatures:
+		if Constants.get_species_type(creature.species) >= 1:
+			var dist = player_camera.position.distance_to(creature.position)
+			if dist < nearest_dist:
+				nearest_dist = dist
+				nearest = creature
+	return nearest
 
 func _input(event):
-	if event is InputEventKey:
-		if event.pressed:
-			# Camera controls
-			if event.keycode == KEY_W:
-				player_camera.position.z -= 10
-			elif event.keycode == KEY_S:
-				player_camera.position.z += 10
-			elif event.keycode == KEY_A:
-				player_camera.position.x -= 10
-			elif event.keycode == KEY_D:
-				player_camera.position.x += 10
-			elif event.keycode == KEY_SPACE:
-				player_camera.position.y += 10
-			elif event.keycode == KEY_SHIFT:
-				player_camera.position.y -= 10
+	if event is InputEventKey and event.pressed:
+		# Camera controls
+		if event.keycode == KEY_W:
+			player_camera.position.z -= 50
+		elif event.keycode == KEY_S:
+			player_camera.position.z += 50
+		elif event.keycode == KEY_A:
+			player_camera.position.x -= 50
+		elif event.keycode == KEY_D:
+			player_camera.position.x += 50
+		elif event.keycode == KEY_SPACE:
+			player_camera.position.y += 50
+		elif event.keycode == KEY_SHIFT:
+			player_camera.position.y -= 50
+		elif event.keycode == KEY_C:
+			# Toggle follow mode
+			camera_follow_mode = not camera_follow_mode
+			if camera_follow_mode:
+				camera_target = find_nearest_animal()
+		elif event.keycode == KEY_T:
+			# Switch to target of current creature
+			if camera_target and "target" in camera_target and camera_target.target:
+				camera_target = camera_target.target
