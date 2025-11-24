@@ -3,9 +3,7 @@
 [ext_resource type="Script" uid="uid://c2b56s5bl10ra" path="res://scripts/game_manager.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://cxolx8i0gwfpf" path="res://scenes/terrain_map.tscn" id="2_0wfyh"]
 
-[node name="root" type="Node"]
-
-[node name="GameManager" type="Node" parent="."]
+[node name="main" type="Node"]
 script = ExtResource("1_main")
 
 [node name="TerrainMap" parent="." instance=ExtResource("2_0wfyh")]

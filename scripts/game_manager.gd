@@ -20,12 +20,14 @@ var max_id: int = 0
 var ui_overlay: Control
 var camera_target: Node3D = null
 var camera_follow_mode: bool = false
+@onready var terrain_map = $TerrainMap
 
 const ARCHIVE_EVERY = 30
 const ARCHIVE_SIZE = 200
 
 func _ready():
 	randomize()
+	
 	setup_world()
 	spawn_initial_creatures()
 	setup_ui()
@@ -79,7 +81,7 @@ func spawn_initial_creatures():
 
 func spawn_creature(species: int, pos: Vector3, burst: bool, primordial: bool, hunger: float, thirst: float, gen: int):
 	var creature = Creature.new()
-	#creature.terrain_map = terrain_map
+	creature.terrain_map = terrain_map
 	creature.game_manager = self
 	creature.creature_id = max_id
 	max_id += 1
