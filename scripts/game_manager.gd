@@ -8,8 +8,10 @@ var ticks: int = 0
 var archive: Array = []
 var max_id: int = 0
 var ui_overlay: Control
-@onready var terrain_map = $Map
+@onready var map = $Map
 @onready var player = $Player
+
+@export var flower: PackedScene
 
 const ARCHIVE_EVERY = 30
 const ARCHIVE_SIZE = 200
@@ -18,21 +20,34 @@ func _ready():
 	#randomize()
 	#setup_ui()
 	#start_game()
-	pass
+	set_process(true)
+	start_game()
 
 func start_game():
-	#setup_world()
+	setup_world()
 	#spawn_initial_creatures()
-	pass
 	
 func setup_world():
 	# generate the map
-	#await terrain_map.ready
-	#terrain_map.initialize_map()
+	if map.is_initialized():
+		# spawn the player
+		# player.set_player_position()
+		var map_bounds = $Map/StaticBody3D/GroundMesh.get_aabb()
+		print("Map bounds: position %v end %v size %v" % [map_bounds.position, map_bounds.end, map_bounds.size])
+		for i in range(40):
+			var dx = randf() * Constants.SIZE * Constants.T
+			var dz = randf() * Constants.SIZE * Constants.T
+			var random_position = Vector3(dx, 0, dz)
+			var flower_position = Vector3(dx, map.get_ground_level(random_position), dz)
+			var ice_flower = flower.instantiate()
+			ice_flower.position = flower_position
+			ice_flower.scale *= 40
+			print("spawning flower at %v" % ice_flower.position)
+			add_child(ice_flower)
+			
+			#ice_flower.owner = ice_flower.get_parent()
 	
-	# spawn the player
-	player.set_terrain_map(terrain_map)
-	player.set_player_position()
+
 
 #func spawn_initial_creatures():
 	#for i in range(Constants.PLAYER_COUNT):

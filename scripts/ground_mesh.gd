@@ -4,9 +4,8 @@ extends MeshInstance3D
 @export var map: Node3D
 
 func update_ground_mesh(N, elev):
-	# Generate ground mesh, rotated 180° around Y and centered at origin
-	var half = (N - 1) * Constants.T / 2.0
-
+	# Generate ground mesh with its (0,0) corner at world XZ = (0,0)
+	# (previous version centered the mesh around the origin)
 	# Build non-indexed arrays so vertices are never shared between triangles (guarantees flat facets)
 	var verts := PackedVector3Array()
 	var norms := PackedVector3Array()
@@ -17,11 +16,11 @@ func update_ground_mesh(N, elev):
 			var x2 = x + 1
 			var y2 = y + 1
 
-			# World-space base positions (centered)
-			var base_x = half - x * Constants.T
-			var base_x2 = half - x2 * Constants.T
-			var base_z = half - y * Constants.T
-			var base_z2 = half - y2 * Constants.T
+			# World-space base positions with origin at (0,0)
+			var base_x = x * Constants.T
+			var base_x2 = x2 * Constants.T
+			var base_z = y * Constants.T
+			var base_z2 = y2 * Constants.T
 
 			# Heights (Y) for the four corners
 			var h00 = elev[x][y] * Constants.T
@@ -41,7 +40,6 @@ func update_ground_mesh(N, elev):
 			# Triangle A (p0, p3, p2) - duplicate vertices, compute per-triangle normal
 			var a = p0; var b = p3; var c = p2
 			var n = (b - a).cross(c - a).normalized()
-			# If normal points down, invert it — DO NOT change vertex positions or winding
 			if n.y < 0.0:
 				n = -n
 			verts.append(a); verts.append(b); verts.append(c)
@@ -63,14 +61,12 @@ func update_ground_mesh(N, elev):
 	arrays[Mesh.ARRAY_VERTEX] = verts
 	arrays[Mesh.ARRAY_NORMAL] = norms
 	arrays[Mesh.ARRAY_COLOR] = cols
-	
-	#var mesh := ArrayMesh.new()
+
+	# assign mesh
 	mesh = ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	
-	#var collider = ConcavePolygonShape3D.new()
-	## Set the points
-	#collider.
- 	## Set the collider shape to the body
-	#get_parent().shape = collider
+
+	# remove children and recreate collision if needed
+	for n in get_children():
+		n.queue_free()
 	create_trimesh_collision()

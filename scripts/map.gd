@@ -64,6 +64,9 @@ func set_noise_seed(v):
 	if not _skip_setter:
 		_initialize_and_build()
 
+func is_initialized() -> bool:
+	return _initialized
+	
 func _initialize_and_build() -> void:
 	# (re)initialize arrays/noise and build the mesh
 	initialize_map()
@@ -163,17 +166,19 @@ func get_closest_water(x: int, y: int) -> Array[int]:
 	return here
 
 func get_ground_level(pos: Vector3) -> float:
-	# Convert world position -> tile indices for the mesh which is centered at origin
-	var half = (N - 1) * Constants.T / 2.0
-	var fx = (half - pos.x) / Constants.T
-	var fz = (half - pos.z) / Constants.T
+	# Convert world position -> tile indices for the mesh
+	var half = (N - 1) * Constants.T
+	var fx = pos.x / Constants.T
+	var fz = pos.z / Constants.T
 	# Use floor to get correct tile index for negatives
-	var gx = int(floor(fx)) % N
-	if gx < 0:
-		gx += N
-	var gy = int(floor(fz)) % N
-	if gy < 0:
-		gy += N
+	#var gx = int(floor(fx)) % N
+	#if gx < 0:
+		#gx += N
+	#var gy = int(floor(fz)) % N
+	#if gy < 0:
+		#gy += N
+	var gx = floor(fx)
+	var gy = floor(fz)
 	# Return positive world Y (so higher elev -> larger Y)
 	return elev[gx][gy] * Constants.T
 

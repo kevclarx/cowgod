@@ -16,7 +16,7 @@ func _ready() -> void:
 	
 func _physics_process(delta: float):
 	if Engine.is_editor_hint(): return
-	if position.y < -10:
+	if position.y < 0:
 		set_player_position()
 
 	# Build local input vector (x = right/left, z = back/forward)
@@ -99,7 +99,7 @@ func set_player_position():
 	var center_z = Constants.SIZE * Constants.T / 2.0
 	if map != null and map.has_method("get_ground_level"):
 		var ground_y = map.get_ground_level(Vector3(center_x, 0, center_z))
-		var center_map = Vector3(center_x, ground_y + 80, center_z)
+		var center_map = Vector3(center_x, ground_y, center_z)
 		position = center_map
 
 func set_terrain_map(tm: Node) -> void:

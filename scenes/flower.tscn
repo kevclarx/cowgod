@@ -1,6 +1,18 @@
-[gd_scene load_steps=2 format=3 uid="uid://dr6rcmkrs1xhb"]
+[gd_scene load_steps=4 format=3 uid="uid://dr6rcmkrs1xhb"]
 
 [ext_resource type="Script" uid="uid://cno7oxjytuw08" path="res://scripts/flower.gd" id="1_8x8dx"]
+[ext_resource type="PackedScene" uid="uid://dr8hvos12ehkl" path="res://assets/iceflower.glb" id="2_yoh7s"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8x8dx"]
+size = Vector3(1.5593262, 3.8063965, 1.6555176)
 
 [node name="Flower" type="Node3D"]
 script = ExtResource("1_8x8dx")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009887695, 1.894165, 0.08215332)
+shape = SubResource("BoxShape3D_8x8dx")
+
+[node name="IceFlower" parent="StaticBody3D" instance=ExtResource("2_yoh7s")]
