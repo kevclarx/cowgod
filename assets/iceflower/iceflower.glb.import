@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dr8hvos12ehkl"
-path="res://.godot/imported/iceflower.glb-975e94b06b6ea786a5b14425ea397a5c.scn"
+path="res://.godot/imported/iceflower.glb-70711c6c9f884288aacddc5e5e1c63f4.scn"
 
 [deps]
 
-source_file="res://assets/iceflower.glb"
-dest_files=["res://.godot/imported/iceflower.glb-975e94b06b6ea786a5b14425ea397a5c.scn"]
+source_file="res://assets/iceflower/iceflower.glb"
+dest_files=["res://.godot/imported/iceflower.glb-70711c6c9f884288aacddc5e5e1c63f4.scn"]
 
 [params]
 

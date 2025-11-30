@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dx5xn4isfnbby"
-path.s3tc="res://.godot/imported/stickman_DefaultMaterial_BaseColor.png-76c2aa6b02d06a2043c5c9c8e6acf7db.s3tc.ctex"
+uid="uid://d0k1n22hd6036"
+path.s3tc="res://.godot/imported/lowpoly-stickman_stickman_DefaultMaterial_BaseColor.png-4d3bd3c1300b4484b2b86a1abcad41d8.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -14,8 +14,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/stickman/stickman_DefaultMaterial_BaseColor.png"
-dest_files=["res://.godot/imported/stickman_DefaultMaterial_BaseColor.png-76c2aa6b02d06a2043c5c9c8e6acf7db.s3tc.ctex"]
+source_file="res://assets/stickman/lowpoly-stickman_stickman_DefaultMaterial_BaseColor.png"
+dest_files=["res://.godot/imported/lowpoly-stickman_stickman_DefaultMaterial_BaseColor.png-4d3bd3c1300b4484b2b86a1abcad41d8.s3tc.ctex"]
 
 [params]
 

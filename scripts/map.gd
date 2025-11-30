@@ -167,7 +167,7 @@ func get_closest_water(x: int, y: int) -> Array[int]:
 
 func get_ground_level(pos: Vector3) -> float:
 	# Convert world position -> tile indices for the mesh
-	var half = (N - 1) * Constants.T
+	#var half = (N - 1) * Constants.T
 	var fx = pos.x / Constants.T
 	var fz = pos.z / Constants.T
 	# Use floor to get correct tile index for negatives

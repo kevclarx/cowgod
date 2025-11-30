@@ -1,3 +1,4 @@
+@tool
 class_name main extends Node
 
 # Use the UIOverlay global class defined via `class_name UIOverlay` in ui_overlay.gd

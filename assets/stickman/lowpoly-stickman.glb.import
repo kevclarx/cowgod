@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://jvx65qtcb0x7"
-path="res://.godot/imported/stickman.glb-a92e4868a514c538aae162142a3eab7f.scn"
+uid="uid://4a2ir2j1v0jf"
+path="res://.godot/imported/lowpoly-stickman.glb-4571c23999009fba191e87057abc183c.scn"
 
 [deps]
 
-source_file="res://assets/stickman/stickman.glb"
-dest_files=["res://.godot/imported/stickman.glb-a92e4868a514c538aae162142a3eab7f.scn"]
+source_file="res://assets/stickman/lowpoly-stickman.glb"
+dest_files=["res://.godot/imported/lowpoly-stickman.glb-4571c23999009fba191e87057abc183c.scn"]
 
 [params]
 
@@ -34,7 +34,7 @@ animation/trimming=false
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
-materials/extract=1
+materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
 _subresources={}
