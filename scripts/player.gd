@@ -84,6 +84,7 @@ func _physics_process(delta: float):
 	# Jumping.
 	if is_on_floor() and Input.is_action_just_pressed("jump"):
 		target_velocity.y = jump_impulse
+		$AudioStreamPlayer3D.play()
 
 	# Vertical Velocity (gravity)
 	if not is_on_floor():
