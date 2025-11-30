@@ -62,7 +62,7 @@ const WATER_CALORIES = 0.40
 const SPECIES_SPEED = [0.0, 0.0, 0.5, 0.52, 0.54, 1.00]
 
 # Get species type: -1 = player, 0 = plant, 1 = herbivore, 2 = carnivore
-static func get_species_type(species: int) -> int:
+func get_species_type(species: int) -> int:
 	const IS_PLANT = [0, 0, 1, 1, 2, 2]
 	if species == -1 or species == -2:
 		return -1

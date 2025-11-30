@@ -1,6 +1,5 @@
-extends Node3D
+class_name Creature extends Mob
 
-const Constants = preload("res://scripts/constants.gd")
 const CreatureAI = preload("res://scripts/creature_ai.gd")
 
 var species: int = 0
@@ -77,39 +76,35 @@ func update_mesh():
 		create_creature_mesh()
 
 func create_flower_mesh():
-	var st = SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	
+	var im = ImmediateMesh.new()
+	im.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+
 	const MIN_FLOWER_SCALE = 0.15
 	var flower_scale = MIN_FLOWER_SCALE + size
 	var height = 75.0 * flower_scale
 	var width = 7.0 * flower_scale
 	var petal_width = 30.0 * flower_scale
-	
+
 	var color = Constants.SPECIES_COLORS[species]
-	
+
 	# Stem
-	st.set_color(Color(0.0, 0.31, 0.0))
-	add_box(st, Vector3(0, height / 2, 0), Vector3(width, height, width))
-	
+	#add_box_im(im, Vector3(0, height / 2, 0), Vector3(width, height, width), Color(0.0, 0.31, 0.0))
+
 	# Upper stem
-	st.set_color(Color(0.0, 0.63, 0.0))
-	add_box(st, Vector3(0, height - height / 2 * size, 0), Vector3(width + 1, height * size, width + 1))
-	
+	#add_box_im(im, Vector3(0, height - height / 2 * size, 0), Vector3(width + 1, height * size, width + 1), Color(0.0, 0.63, 0.0))
+
 	# Flower head center
-	st.set_color(Color(1.0, 1.0, 0.0) if species == 0 else Color(1.0, 1.0, 1.0))
-	add_sphere(st, Vector3(0, height, 0), petal_width * 0.65, 8)
-	
+	#add_sphere_im(im, Vector3(0, height, 0), petal_width * 0.65, 8, Color(1.0, 1.0, 0.0) if species == 0 else Color(1.0, 1.0, 1.0))
+
 	# Petals
-	st.set_color(color)
 	for p in range(5):
 		var ang = p * TAU / 5.0
-		var petal_pos = Vector3(cos(ang) * petal_width, height, sin(ang) * petal_width)
-		add_sphere(st, petal_pos, petal_width * 0.8, 6)
-	
-	st.generate_normals()
-	mesh_instance.mesh = st.commit()
-	
+		#var petal_pos = Vector3(cos(ang) * petal_width, height, sin(ang) * petal_width)
+		#add_sphere_im(im, petal_pos, petal_width * 0.8, 6, color)
+
+	im.surface_end()
+	mesh_instance.mesh = im
+
 	var mat = StandardMaterial3D.new()
 	mat.vertex_color_use_as_albedo = true
 	mesh_instance.material_override = mat

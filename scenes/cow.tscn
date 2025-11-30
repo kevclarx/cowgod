@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dr7r13cecas1i"]
+
+[ext_resource type="Script" uid="uid://d2rwka51gxls6" path="res://scripts/cow.gd" id="1_fgglk"]
+
+[node name="Cow" type="Node3D"]
+script = ExtResource("1_fgglk")

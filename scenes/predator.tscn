@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dtcre65fjb4m5"]
+
+[ext_resource type="Script" uid="uid://c8xquqgp0864k" path="res://scripts/predator.gd" id="1_2ixv2"]
+
+[node name="Predator" type="Node3D"]
+script = ExtResource("1_2ixv2")

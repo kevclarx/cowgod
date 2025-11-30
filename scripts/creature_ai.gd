@@ -1,7 +1,5 @@
 extends Node
 
-const Constants = preload("res://scripts/constants.gd")
-
 var creature: Node3D
 var game_manager: Node
 var terrain_map: Node3D
