@@ -1,3 +1,4 @@
+@tool
 class_name Flower extends Node3D
 
 #var ice_flower = preload("res://assets/iceflower.glb")
@@ -13,4 +14,5 @@ func _ready() -> void:
 	pass
 
 func _process(delta: float) -> void:
-	flower_model.get_node("Flower").rotate_object_local(Vector3.UP, angular_speed * delta)
+	flower_model.get_node("Flower").global_rotate(Vector3.UP, angular_speed * delta)
+	
